@@ -8,30 +8,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.comicapp.ui.theme.ComicAppTheme
+
 
 data class DylanDogNumero(
     val numero: Int,
     val titolo: String,
-    val coverUrl: String? = null,
     var posseduto: Boolean = false
 )
 
@@ -51,6 +45,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 object SalvataggioFumetti {
     private const val PREFS_NAME = "dylan_dog_data"
     private const val KEY_NUMERI_POSSEDUTI = "numeri_posseduti"
@@ -69,189 +64,473 @@ object SalvataggioFumetti {
     }
 }
 
-// 📚 ARCHIVIO COMPLETO COPERTINE DYLAN DOG
-object DylanDogCovertureArchive {
-
-    // 🎯 LINK REALI CONFERMATI
-    private val linkReali = mapOf(
-        // Sergio Bonelli Shop (Alta qualità)
-        1 to "https://shop.sergiobonelli.it/resizer/1000/-1/true/1517583386868.jpg--l_alba_dei_morti_viventi___dylan_dog_01_cover.jpg?1517583387000",
-
-        // Comics.org (Pattern: https://www.comics.org/issue/[ID]/cover/4/)
-        // AGGIUNGI QUI GLI ID CHE TROVI NAVIGANDO SU COMICS.ORG
-        // Esempio: 2 to "https://www.comics.org/issue/41986/cover/4/",
-        // Esempio: 3 to "https://www.comics.org/issue/41987/cover/4/",
-    )
-
-    // 🔍 PATTERN COMICS.ORG - Aggiungi qui gli Issue ID che trovi
-    private val comicsOrgIssueIds = mapOf(
-        1 to 41985,  // Confermato dal search
-        34 to 46522, // Confermato dal search
-        66 to 51058, // Confermato dal search
-
-        // 📝 AGGIUNGI QUI ALTRI ID CHE TROVI NAVIGANDO SU COMICS.ORG
-        // Pattern di incremento: prova numeri consecutivi se non trovi l'ID esatto
-        // Esempio: 2 to 41986, 3 to 41987, etc.
-    )
-
-    // 🎨 PLACEHOLDER TEMATICI (usati quando non abbiamo link reali)
-    private val placeholderThemes = mapOf(
-        1 to Pair("8B0000", "👻 ALBA MORTI 👻"),
-        2 to Pair("4B0082", "🔪 JACK RIPPER 🔪"),
-        3 to Pair("2F4F4F", "🌙 LUNA PIENA 🌙"),
-        4 to Pair("800080", "👤 ANNA NEVER 👤"),
-        5 to Pair("DC143C", "⚔️ KILLERS ⚔️"),
-        10 to Pair("008B8B", "🪞 SPECCHIO 🪞"),
-        15 to Pair("FF4500", "📺 CHANNEL 666 📺"),
-        25 to Pair("9932CC", "✨ MORGANA ✨"),
-        50 to Pair("FFD700", "⏰ EDGE TIME ⏰"),
-        60 to Pair("228B22", "⚡ FRANKENSTEIN ⚡"),
-        100 to Pair("FF4500", "🎯 STORIA DD 🎯"),
-        200 to Pair("DC143C", "🎪 NUMERO 200 🎪"),
-        300 to Pair("4B0082", "👨‍👩‍👧‍👦 FAMIGLIA 👨‍👩‍👧‍👦"),
-        400 to Pair("8B0000", "💥 APOCALISSE 💥")
-    )
-
-    // 🔗 GENERA URL COPERTINA
-    fun getCoverUrl(numero: Int): String {
-        // 1. Prima priorità: Link reali confermati
-        linkReali[numero]?.let { return it }
-
-        // 2. Seconda priorità: Comics.org se abbiamo l'Issue ID
-        comicsOrgIssueIds[numero]?.let { issueId ->
-            return "https://www.comics.org/issue/$issueId/cover/4/"
-        }
-
-        // 3. Fallback: Placeholder tematico o generico
-        val theme = placeholderThemes[numero]
-        return if (theme != null) {
-            val (colore, testo) = theme
-            "https://via.placeholder.com/400x600/$colore/FFFFFF?text=DD%20$numero%0A%0A$testo"
-        } else {
-            getGenericPlaceholder(numero)
-        }
-    }
-
-    private fun getGenericPlaceholder(numero: Int): String {
-        val colori = listOf(
-            "8B0000", "4B0082", "228B22", "FF4500", "2F4F4F",
-            "DC143C", "191970", "800080", "008B8B", "B22222",
-            "556B2F", "8B4513", "483D8B", "2E8B57", "A0522D"
-        )
-        val colore = colori[numero % colori.size]
-        return "https://via.placeholder.com/400x600/$colore/FFFFFF?text=DD%20$numero%0A%0A📖%20FUMETTO%20📖"
-    }
-}
 
 fun getListaDylanDog(): List<DylanDogNumero> {
     return listOf(
-        DylanDogNumero(1, "Dawn of the Dead", DylanDogCovertureArchive.getCoverUrl(1)),
-        DylanDogNumero(2, "Jack the Ripper", DylanDogCovertureArchive.getCoverUrl(2)),
-        DylanDogNumero(3, "The Nights of the Full Moon", DylanDogCovertureArchive.getCoverUrl(3)),
-        DylanDogNumero(4, "The Ghost of Anna Never", DylanDogCovertureArchive.getCoverUrl(4)),
-        DylanDogNumero(5, "The Killers", DylanDogCovertureArchive.getCoverUrl(5)),
-        DylanDogNumero(6, "The Beauty of the Devil", DylanDogCovertureArchive.getCoverUrl(6)),
-        DylanDogNumero(7, "The Twilight Zone", DylanDogCovertureArchive.getCoverUrl(7)),
-        DylanDogNumero(8, "The return of the monster", DylanDogCovertureArchive.getCoverUrl(8)),
-        DylanDogNumero(9, "Alpha and Omega", DylanDogCovertureArchive.getCoverUrl(9)),
-        DylanDogNumero(10, "Through the Looking Glass", DylanDogCovertureArchive.getCoverUrl(10)),
-        DylanDogNumero(11, "Diabolo the Great", DylanDogCovertureArchive.getCoverUrl(11)),
-        DylanDogNumero(12, "Killer!", DylanDogCovertureArchive.getCoverUrl(12)),
-        DylanDogNumero(13, "They Live Among Us", DylanDogCovertureArchive.getCoverUrl(13)),
-        DylanDogNumero(14, "Between Life and Death", DylanDogCovertureArchive.getCoverUrl(14)),
-        DylanDogNumero(15, "Channel 666", DylanDogCovertureArchive.getCoverUrl(15)),
-        DylanDogNumero(16, "The Castle of Fear", DylanDogCovertureArchive.getCoverUrl(16)),
-        DylanDogNumero(17, "The Lady in Black", DylanDogCovertureArchive.getCoverUrl(17)),
-        DylanDogNumero(18, "Cagliostro!", DylanDogCovertureArchive.getCoverUrl(18)),
-        DylanDogNumero(19, "Memories from the invisible", DylanDogCovertureArchive.getCoverUrl(19)),
-        DylanDogNumero(20, "From the Deep", DylanDogCovertureArchive.getCoverUrl(20)),
-        DylanDogNumero(21, "Cursed Day", DylanDogCovertureArchive.getCoverUrl(21)),
-        DylanDogNumero(22, "The Tunnel of Horror", DylanDogCovertureArchive.getCoverUrl(22)),
-        DylanDogNumero(23, "The Mysterious Island", DylanDogCovertureArchive.getCoverUrl(23)),
-        DylanDogNumero(24, "Pink Rabbits Kill", DylanDogCovertureArchive.getCoverUrl(24)),
-        DylanDogNumero(25, "Morgana", DylanDogCovertureArchive.getCoverUrl(25)),
-        DylanDogNumero(26, "After Midnight", DylanDogCovertureArchive.getCoverUrl(26)),
-        DylanDogNumero(27, "I Saw You Die", DylanDogCovertureArchive.getCoverUrl(27)),
-        DylanDogNumero(28, "Razor Blade", DylanDogCovertureArchive.getCoverUrl(28)),
-        DylanDogNumero(29, "When the city sleeps", DylanDogCovertureArchive.getCoverUrl(29)),
-        DylanDogNumero(30, "The Haunted House", DylanDogCovertureArchive.getCoverUrl(30)),
-        DylanDogNumero(31, "Grand Guignol", DylanDogCovertureArchive.getCoverUrl(31)),
-        DylanDogNumero(32, "Obsession", DylanDogCovertureArchive.getCoverUrl(32)),
-        DylanDogNumero(33, "Jekyll!", DylanDogCovertureArchive.getCoverUrl(33)),
-        DylanDogNumero(34, "The Darkness", DylanDogCovertureArchive.getCoverUrl(34)),
-        DylanDogNumero(35, "The Cliff of Ghosts", DylanDogCovertureArchive.getCoverUrl(35)),
-        DylanDogNumero(36, "A Midsummer Night's Nightmare", DylanDogCovertureArchive.getCoverUrl(36)),
-        DylanDogNumero(37, "The Tiger's Dream", DylanDogCovertureArchive.getCoverUrl(37)),
-        DylanDogNumero(38, "A voice from nowhere", DylanDogCovertureArchive.getCoverUrl(38)),
-        DylanDogNumero(39, "The Lord of Silence", DylanDogCovertureArchive.getCoverUrl(39)),
-        DylanDogNumero(40, "It Happened Tomorrow", DylanDogCovertureArchive.getCoverUrl(40)),
-        DylanDogNumero(41, "Golconda!", DylanDogCovertureArchive.getCoverUrl(41)),
-        DylanDogNumero(42, "The Hyena", DylanDogCovertureArchive.getCoverUrl(42)),
-        DylanDogNumero(43, "Nobody's Story", DylanDogCovertureArchive.getCoverUrl(43)),
-        DylanDogNumero(44, "Reflections of Death", DylanDogCovertureArchive.getCoverUrl(44)),
-        DylanDogNumero(45, "Goblin", DylanDogCovertureArchive.getCoverUrl(45)),
-        DylanDogNumero(46, "Hells", DylanDogCovertureArchive.getCoverUrl(46)),
-        DylanDogNumero(47, "Written in Blood", DylanDogCovertureArchive.getCoverUrl(47)),
-        DylanDogNumero(48, "Horror Paradise", DylanDogCovertureArchive.getCoverUrl(48)),
-        DylanDogNumero(49, "The Mystery of the Thames", DylanDogCovertureArchive.getCoverUrl(49)),
-        DylanDogNumero(50, "At the Edge of Time", DylanDogCovertureArchive.getCoverUrl(50)),
-        DylanDogNumero(51, "Evil", DylanDogCovertureArchive.getCoverUrl(51)),
-        DylanDogNumero(52, "The Red Mark", DylanDogCovertureArchive.getCoverUrl(52)),
-        DylanDogNumero(53, "The Queen of Darkness", DylanDogCovertureArchive.getCoverUrl(53)),
-        DylanDogNumero(54, "Delirium", DylanDogCovertureArchive.getCoverUrl(54)),
-        DylanDogNumero(55, "The Mummy", DylanDogCovertureArchive.getCoverUrl(55)),
-        DylanDogNumero(56, "Shadows", DylanDogCovertureArchive.getCoverUrl(56)),
-        DylanDogNumero(57, "Return to Twilight", DylanDogCovertureArchive.getCoverUrl(57)),
-        DylanDogNumero(58, "The Stone Hourglass", DylanDogCovertureArchive.getCoverUrl(58)),
-        DylanDogNumero(59, "People who disappear", DylanDogCovertureArchive.getCoverUrl(59)),
-        DylanDogNumero(60, "Frankenstein!", DylanDogCovertureArchive.getCoverUrl(60)),
-        DylanDogNumero(61, "Terror from the infinite", DylanDogCovertureArchive.getCoverUrl(61)),
-        DylanDogNumero(62, "The Vampires", DylanDogCovertureArchive.getCoverUrl(62)),
-        DylanDogNumero(63, "Maelstrom!", DylanDogCovertureArchive.getCoverUrl(63)),
-        DylanDogNumero(64, "The Secrets of Ramblyn", DylanDogCovertureArchive.getCoverUrl(64)),
-        DylanDogNumero(65, "The Cave Beast", DylanDogCovertureArchive.getCoverUrl(65)),
-        DylanDogNumero(66, "Match with Death", DylanDogCovertureArchive.getCoverUrl(66)),
-        DylanDogNumero(67, "The Man Who Lived Twice", DylanDogCovertureArchive.getCoverUrl(67)),
-        DylanDogNumero(68, "The Spectre in the Dark", DylanDogCovertureArchive.getCoverUrl(68)),
-        DylanDogNumero(69, "Witch Hunt", DylanDogCovertureArchive.getCoverUrl(69)),
-        DylanDogNumero(70, "The Forest of Assassins", DylanDogCovertureArchive.getCoverUrl(70)),
-        DylanDogNumero(71, "The Mantis Crimes", DylanDogCovertureArchive.getCoverUrl(71)),
-        DylanDogNumero(72, "The Last Full Moon", DylanDogCovertureArchive.getCoverUrl(72)),
-        DylanDogNumero(73, "Armageddon!", DylanDogCovertureArchive.getCoverUrl(73)),
-        DylanDogNumero(74, "The Long Goodbye", DylanDogCovertureArchive.getCoverUrl(74)),
-        DylanDogNumero(75, "The Throat Cutter", DylanDogCovertureArchive.getCoverUrl(75)),
-        DylanDogNumero(76, "Black Curse", DylanDogCovertureArchive.getCoverUrl(76)),
-        DylanDogNumero(77, "The Last Man on Earth", DylanDogCovertureArchive.getCoverUrl(77)),
-        DylanDogNumero(78, "The Killers from the Dark", DylanDogCovertureArchive.getCoverUrl(78)),
-        DylanDogNumero(79, "The Evil Fairy", DylanDogCovertureArchive.getCoverUrl(79)),
-        DylanDogNumero(80, "Killex's Brain", DylanDogCovertureArchive.getCoverUrl(80)),
-        DylanDogNumero(81, "Johnny Freak", DylanDogCovertureArchive.getCoverUrl(81)),
-        DylanDogNumero(82, "Far from the light", DylanDogCovertureArchive.getCoverUrl(82)),
-        DylanDogNumero(83, "Doktor Terror", DylanDogCovertureArchive.getCoverUrl(83)),
-        DylanDogNumero(84, "Zed", DylanDogCovertureArchive.getCoverUrl(84)),
-        DylanDogNumero(85, "Ghosts", DylanDogCovertureArchive.getCoverUrl(85)),
-        DylanDogNumero(86, "Story of a poor devil", DylanDogCovertureArchive.getCoverUrl(86)),
-        DylanDogNumero(87, "Bloody Parties", DylanDogCovertureArchive.getCoverUrl(87)),
-        DylanDogNumero(88, "Beyond Death", DylanDogCovertureArchive.getCoverUrl(88)),
-        DylanDogNumero(89, "The Knights of Time", DylanDogCovertureArchive.getCoverUrl(89)),
-        DylanDogNumero(90, "Titanic", DylanDogCovertureArchive.getCoverUrl(90)),
-        DylanDogNumero(91, "Metamorphosis", DylanDogCovertureArchive.getCoverUrl(91)),
-        DylanDogNumero(92, "The Mosaic of Horror", DylanDogCovertureArchive.getCoverUrl(92)),
-        DylanDogNumero(93, "Presences...", DylanDogCovertureArchive.getCoverUrl(93)),
-        DylanDogNumero(94, "The woman who kills the past", DylanDogCovertureArchive.getCoverUrl(94)),
-        DylanDogNumero(95, "The Days of Nightmare", DylanDogCovertureArchive.getCoverUrl(95)),
-        DylanDogNumero(96, "The Challenge", DylanDogCovertureArchive.getCoverUrl(96)),
-        DylanDogNumero(97, "Behind the curtain", DylanDogCovertureArchive.getCoverUrl(97)),
-        DylanDogNumero(98, "Satan's Gaze", DylanDogCovertureArchive.getCoverUrl(98)),
-        DylanDogNumero(99, "Deadly Symphony", DylanDogCovertureArchive.getCoverUrl(99)),
-        DylanDogNumero(100, "The story of Dylan Dog", DylanDogCovertureArchive.getCoverUrl(100)),
-
-        // CONTINUA CON TUTTI GLI ALTRI... (per brevità mostro solo fino a 100)
-        // Aggiungi tutti fino al 460 seguendo lo stesso pattern
-        DylanDogNumero(200, "The number two hundred", DylanDogCovertureArchive.getCoverUrl(200)),
-        DylanDogNumero(300, "Family Portrait", DylanDogCovertureArchive.getCoverUrl(300)),
-        DylanDogNumero(400, "And now, the Apocalypse!", DylanDogCovertureArchive.getCoverUrl(400)),
-        DylanDogNumero(460, "December 32", DylanDogCovertureArchive.getCoverUrl(460))
+        DylanDogNumero(1, "L'alba dei morti viventi"),
+        DylanDogNumero(2, "Jack lo squartatore"),
+        DylanDogNumero(3, "Le notti della luna piena"),
+        DylanDogNumero(4, "Il fantasma di Anna Never"),
+        DylanDogNumero(5, "Gli uccisori"),
+        DylanDogNumero(6, "La bellezza del demonio"),
+        DylanDogNumero(7, "La zona del crepuscolo"),
+        DylanDogNumero(8, "Il ritorno del mostro"),
+        DylanDogNumero(9, "Alfa e Omega"),
+        DylanDogNumero(10, "Attraverso lo specchio"),
+        DylanDogNumero(11, "Diabolo il grande"),
+        DylanDogNumero(12, "Killer!"),
+        DylanDogNumero(13, "Vivono tra noi"),
+        DylanDogNumero(14, "Fra la vita e la morte"),
+        DylanDogNumero(15, "Canale 666"),
+        DylanDogNumero(16, "Il castello della paura"),
+        DylanDogNumero(17, "La Dama in nero"),
+        DylanDogNumero(18, "Cagliostro!"),
+        DylanDogNumero(19, "Memorie dall'invisibile"),
+        DylanDogNumero(20, "Dal profondo"),
+        DylanDogNumero(21, "Giorno maledetto"),
+        DylanDogNumero(22, "Il tunnel dell'orrore"),
+        DylanDogNumero(23, "L'isola misteriosa"),
+        DylanDogNumero(24, "I conigli rosa uccidono"),
+        DylanDogNumero(25, "Morgana"),
+        DylanDogNumero(26, "Dopo mezzanotte"),
+        DylanDogNumero(27, "Ti ho visto morire"),
+        DylanDogNumero(28, "Lama di rasoio"),
+        DylanDogNumero(29, "Quando la città dorme"),
+        DylanDogNumero(30, "La casa infestata"),
+        DylanDogNumero(31, "Grand Guignol"),
+        DylanDogNumero(32, "Ossessione"),
+        DylanDogNumero(33, "Jekyll!"),
+        DylanDogNumero(34, "Il buio"),
+        DylanDogNumero(35, "La scogliera degli spettri"),
+        DylanDogNumero(36, "Incubo di una notte di mezza estate"),
+        DylanDogNumero(37, "Il sogno della tigre"),
+        DylanDogNumero(38, "Una voce dal nulla"),
+        DylanDogNumero(39, "Il Signore del Silenzio"),
+        DylanDogNumero(40, "Accadde domani"),
+        DylanDogNumero(41, "Golconda!"),
+        DylanDogNumero(42, "La iena"),
+        DylanDogNumero(43, "Storia di Nessuno"),
+        DylanDogNumero(44, "Riflessi di morte"),
+        DylanDogNumero(45, "Goblin"),
+        DylanDogNumero(46, "Inferni"),
+        DylanDogNumero(47, "Scritto con il sangue"),
+        DylanDogNumero(48, "Horror Paradise"),
+        DylanDogNumero(49, "Il mistero del Tamigi"),
+        DylanDogNumero(50, "Ai confini del tempo"),
+        DylanDogNumero(51, "Il Male"),
+        DylanDogNumero(52, "Il Marchio Rosso"),
+        DylanDogNumero(53, "La Regina delle Tenebre"),
+        DylanDogNumero(54, "Delirium"),
+        DylanDogNumero(55, "La mummia"),
+        DylanDogNumero(56, "Ombre"),
+        DylanDogNumero(57, "Ritorno al Crepuscolo"),
+        DylanDogNumero(58, "La clessidra di pietra"),
+        DylanDogNumero(59, "Gente che scompare"),
+        DylanDogNumero(60, "Frankenstein!"),
+        DylanDogNumero(61, "Terrore dall'infinito"),
+        DylanDogNumero(62, "I vampiri"),
+        DylanDogNumero(63, "Maelstrom!"),
+        DylanDogNumero(64, "I segreti di Ramblyn"),
+        DylanDogNumero(65, "La belva delle caverne"),
+        DylanDogNumero(66, "Partita con la morte"),
+        DylanDogNumero(67, "L'uomo che visse due volte"),
+        DylanDogNumero(68, "Lo spettro nel buio"),
+        DylanDogNumero(69, "Caccia alle streghe"),
+        DylanDogNumero(70, "Il bosco degli assassini"),
+        DylanDogNumero(71, "I delitti della Mantide"),
+        DylanDogNumero(72, "L'ultimo plenilunio"),
+        DylanDogNumero(73, "Armageddon!"),
+        DylanDogNumero(74, "Il lungo addio"),
+        DylanDogNumero(75, "Il tagliagole"),
+        DylanDogNumero(76, "Maledizione nera"),
+        DylanDogNumero(77, "L'ultimo uomo sulla Terra"),
+        DylanDogNumero(78, "I killer venuti dal buio"),
+        DylanDogNumero(79, "La Fata del Male"),
+        DylanDogNumero(80, "Il cervello di Killex"),
+        DylanDogNumero(81, "Johnny Freak"),
+        DylanDogNumero(82, "Lontano dalla luce"),
+        DylanDogNumero(83, "Doktor Terror"),
+        DylanDogNumero(84, "Zed"),
+        DylanDogNumero(85, "Fantasmi"),
+        DylanDogNumero(86, "Storia di un povero diavolo"),
+        DylanDogNumero(87, "Feste di sangue"),
+        DylanDogNumero(88, "Oltre la morte"),
+        DylanDogNumero(89, "I cavalieri del tempo"),
+        DylanDogNumero(90, "Titanic"),
+        DylanDogNumero(91, "Metamorfosi"),
+        DylanDogNumero(92, "Il mosaico dell'orrore"),
+        DylanDogNumero(93, "Presenze..."),
+        DylanDogNumero(94, "La donna che uccide il passato"),
+        DylanDogNumero(95, "I giorni dell'incubo"),
+        DylanDogNumero(96, "La sfida"),
+        DylanDogNumero(97, "Dietro il sipario"),
+        DylanDogNumero(98, "Lo sguardo di Satana"),
+        DylanDogNumero(99, "Sinfonia mortale"),
+        DylanDogNumero(100, "La storia di Dylan Dog"),
+        DylanDogNumero(101, "La porta dell'Inferno"),
+        DylanDogNumero(102, "Fratelli di un altro tempo"),
+        DylanDogNumero(103, "I demoni"),
+        DylanDogNumero(104, "Notte senza fine"),
+        DylanDogNumero(105, "L'orrenda invasione"),
+        DylanDogNumero(106, "La rivolta delle macchine"),
+        DylanDogNumero(107, "Il paese delle ombre colorate"),
+        DylanDogNumero(108, "Il guardiano della memoria"),
+        DylanDogNumero(109, "Il volo dello struzzo"),
+        DylanDogNumero(110, "Aracne"),
+        DylanDogNumero(111, "La profezia"),
+        DylanDogNumero(112, "Incontri ravvicinati"),
+        DylanDogNumero(113, "La metà oscura"),
+        DylanDogNumero(114, "La prigione di carta"),
+        DylanDogNumero(115, "L'antro della belva"),
+        DylanDogNumero(116, "La governante"),
+        DylanDogNumero(117, "La quinta stagione"),
+        DylanDogNumero(118, "Il gioco del destino"),
+        DylanDogNumero(119, "L'occhio del gatto"),
+        DylanDogNumero(120, "Abyss"),
+        DylanDogNumero(121, "Finché morte non vi separi"),
+        DylanDogNumero(122, "Il confine"),
+        DylanDogNumero(123, "Phoenix"),
+        DylanDogNumero(124, "Il Picco della Strega"),
+        DylanDogNumero(125, "Tre per zero"),
+        DylanDogNumero(126, "La Morte Rossa"),
+        DylanDogNumero(127, "Il cuore di Johnny"),
+        DylanDogNumero(128, "Il richiamo della foresta"),
+        DylanDogNumero(129, "Il ritorno di Killex"),
+        DylanDogNumero(130, "Il negromante"),
+        DylanDogNumero(131, "Quando cadono le stelle"),
+        DylanDogNumero(132, "L'uomo che vende il tempo"),
+        DylanDogNumero(133, "Ananga!"),
+        DylanDogNumero(134, "L'urlo del giaguaro"),
+        DylanDogNumero(135, "Scanner"),
+        DylanDogNumero(136, "Lassù qualcuno ci chiama"),
+        DylanDogNumero(137, "La città perduta"),
+        DylanDogNumero(138, "Cattivi pensieri"),
+        DylanDogNumero(139, "Hook l'implacabile"),
+        DylanDogNumero(140, "Verso un mondo lontano"),
+        DylanDogNumero(141, "L'Angelo Sterminatore"),
+        DylanDogNumero(142, "Anima nera"),
+        DylanDogNumero(143, "Apocalisse"),
+        DylanDogNumero(144, "Belli da morire"),
+        DylanDogNumero(145, "Il cane infernale"),
+        DylanDogNumero(146, "Ghost Hotel"),
+        DylanDogNumero(147, "Polvere di stelle"),
+        DylanDogNumero(148, "Abissi di follia"),
+        DylanDogNumero(149, "L'alieno"),
+        DylanDogNumero(150, "Il bacio della vipera"),
+        DylanDogNumero(151, "Il lago nel cielo"),
+        DylanDogNumero(152, "Morte a domicilio"),
+        DylanDogNumero(153, "La strada verso il nulla"),
+        DylanDogNumero(154, "Il battito del tempo"),
+        DylanDogNumero(155, "La nuova stirpe"),
+        DylanDogNumero(156, "Il gigante"),
+        DylanDogNumero(157, "Il sonno della ragione"),
+        DylanDogNumero(158, "Nato per uccidere"),
+        DylanDogNumero(159, "Percezioni extrasensoriali"),
+        DylanDogNumero(160, "Il Druido"),
+        DylanDogNumero(161, "Il sorriso dell'Oscura Signora"),
+        DylanDogNumero(162, "Il dio prigioniero"),
+        DylanDogNumero(163, "Il mondo perfetto"),
+        DylanDogNumero(164, "La Donna Urlante"),
+        DylanDogNumero(165, "L'isola dei cani"),
+        DylanDogNumero(166, "Sopravvivere all'Eden"),
+        DylanDogNumero(167, "Medusa"),
+        DylanDogNumero(168, "Il fiume dell'oblio"),
+        DylanDogNumero(169, "Lo specchio dell'anima"),
+        DylanDogNumero(170, "La Piccola Morte"),
+        DylanDogNumero(171, "Possessione diabolica"),
+        DylanDogNumero(172, "Memorie dal sottosuolo"),
+        DylanDogNumero(173, "Per un pugno di sterline"),
+        DylanDogNumero(174, "Un colpo di sfortuna"),
+        DylanDogNumero(175, "Il seme della follia"),
+        DylanDogNumero(176, "Il \"progetto\""),
+        DylanDogNumero(177, "Il discepolo"),
+        DylanDogNumero(178, "Lettere dall'Inferno"),
+        DylanDogNumero(179, "La terza faccia della medaglia"),
+        DylanDogNumero(180, "Notti di caccia"),
+        DylanDogNumero(181, "Il marchio del vampiro"),
+        DylanDogNumero(182, "Safarà"),
+        DylanDogNumero(183, "Requiem per un mostro"),
+        DylanDogNumero(184, "I misteri di Venezia"),
+        DylanDogNumero(185, "Phobia"),
+        DylanDogNumero(186, "L'Uomo Nero"),
+        DylanDogNumero(187, "Amori perduti"),
+        DylanDogNumero(188, "Il Labirinto di Bangor"),
+        DylanDogNumero(189, "Il prezzo della morte"),
+        DylanDogNumero(190, "Il segreto di Mordecai"),
+        DylanDogNumero(191, "Sciarada"),
+        DylanDogNumero(192, "Macchie solari"),
+        DylanDogNumero(193, "L'eterna illusione"),
+        DylanDogNumero(194, "La strega di Brentford"),
+        DylanDogNumero(195, "Uno strano cliente"),
+        DylanDogNumero(196, "Chi ha ucciso Babbo Natale?"),
+        DylanDogNumero(197, "I quattro elementi"),
+        DylanDogNumero(198, "La legge della giungla"),
+        DylanDogNumero(199, "Homo homini lupus"),
+        DylanDogNumero(200, "Il numero duecento"),
+        DylanDogNumero(201, "Daisy & Queen"),
+        DylanDogNumero(202, "Il settimo girone"),
+        DylanDogNumero(203, "La famiglia Milford"),
+        DylanDogNumero(204, "Resurrezione"),
+        DylanDogNumero(205, "Il compagno di scuola"),
+        DylanDogNumero(206, "Nebbia"),
+        DylanDogNumero(207, "Il Tempio della Seconda Vita"),
+        DylanDogNumero(208, "Un mondo sconosciuto"),
+        DylanDogNumero(209, "La Bestia"),
+        DylanDogNumero(210, "Il Pifferaio Magico"),
+        DylanDogNumero(211, "La casa dei fantasmi"),
+        DylanDogNumero(212, "Necropolis"),
+        DylanDogNumero(213, "L'uccisore di streghe"),
+        DylanDogNumero(214, "Manila"),
+        DylanDogNumero(215, "Il pozzo degli inganni"),
+        DylanDogNumero(216, "Il grimorio maledetto"),
+        DylanDogNumero(217, "Il grande sonno"),
+        DylanDogNumero(218, "L'incubo dipinto"),
+        DylanDogNumero(219, "La decima vittima"),
+        DylanDogNumero(220, "Concorrenza sleale"),
+        DylanDogNumero(221, "Il tocco del diavolo"),
+        DylanDogNumero(222, "La saggezza dei morti"),
+        DylanDogNumero(223, "Le due vite di Dream"),
+        DylanDogNumero(224, "Sul filo dei ricordi"),
+        DylanDogNumero(225, "Insonnia"),
+        DylanDogNumero(226, "24 ore per non morire"),
+        DylanDogNumero(227, "Istinto omicida"),
+        DylanDogNumero(228, "Oltre quella porta"),
+        DylanDogNumero(229, "Il cielo può attendere"),
+        DylanDogNumero(230, "L'inquilino misterioso"),
+        DylanDogNumero(231, "Nightmare Tour"),
+        DylanDogNumero(232, "Un fantasma a Scotland Yard"),
+        DylanDogNumero(233, "L'ospite sgradito"),
+        DylanDogNumero(234, "L'ultimo arcano"),
+        DylanDogNumero(235, "Sonata macabra"),
+        DylanDogNumero(236, "Vittime designate"),
+        DylanDogNumero(237, "All'ombra del vulcano"),
+        DylanDogNumero(238, "Gli eredi del Crepuscolo"),
+        DylanDogNumero(239, "Il gran bastardo"),
+        DylanDogNumero(240, "Ucronìa"),
+        DylanDogNumero(241, "Xabaras!"),
+        DylanDogNumero(242, "In nome del padre"),
+        DylanDogNumero(243, "L'assassino è tra noi"),
+        DylanDogNumero(244, "Marty"),
+        DylanDogNumero(245, "Il cimitero dei freaks"),
+        DylanDogNumero(246, "La locanda alla fine del mondo"),
+        DylanDogNumero(247, "Tutti gli amori di Sally"),
+        DylanDogNumero(248, "Anima d'acciaio"),
+        DylanDogNumero(249, "I ricordi sepolti"),
+        DylanDogNumero(250, "Ascensore per l'Inferno"),
+        DylanDogNumero(251, "Il guardiano del faro"),
+        DylanDogNumero(252, "Poltergeist!"),
+        DylanDogNumero(253, "I mostri di Sullivan"),
+        DylanDogNumero(254, "Vite in gioco"),
+        DylanDogNumero(255, "La stanza numero 63"),
+        DylanDogNumero(256, "Il feroce Takurr"),
+        DylanDogNumero(257, "Il custode"),
+        DylanDogNumero(258, "La furia dell'Upyr"),
+        DylanDogNumero(259, "Da una lontana galassia"),
+        DylanDogNumero(260, "La condanna di Casper"),
+        DylanDogNumero(261, "Saluti da Moonlight"),
+        DylanDogNumero(262, "L'incendiario"),
+        DylanDogNumero(263, "La collina dei conigli"),
+        DylanDogNumero(264, "Liam il bugiardo"),
+        DylanDogNumero(265, "Reincarnazioni"),
+        DylanDogNumero(266, "Gli artigli del Drago"),
+        DylanDogNumero(267, "Cose dell'altro mondo"),
+        DylanDogNumero(268, "Il modulo A38"),
+        DylanDogNumero(269, "I professionisti"),
+        DylanDogNumero(270, "Il re delle mosche"),
+        DylanDogNumero(271, "Il piccolo diavolo"),
+        DylanDogNumero(272, "La strage dei Graham"),
+        DylanDogNumero(273, "Seppelliti vivi!"),
+        DylanDogNumero(274, "Fuga dal passato"),
+        DylanDogNumero(275, "Il tredicesimo uomo"),
+        DylanDogNumero(276, "Uno sconosciuto sulla strada"),
+        DylanDogNumero(277, "Il giorno del licantropo"),
+        DylanDogNumero(278, "Discesa nell'abisso"),
+        DylanDogNumero(279, "Il giardino delle illusioni"),
+        DylanDogNumero(280, "Mater Morbi"),
+        DylanDogNumero(281, "Il cammino della vita"),
+        DylanDogNumero(282, "Relazioni pericolose"),
+        DylanDogNumero(283, "Il persecutore"),
+        DylanDogNumero(284, "Nel segno del dolore"),
+        DylanDogNumero(285, "Il ladro di cervelli"),
+        DylanDogNumero(286, "Programma di rieducazione"),
+        DylanDogNumero(287, "I nuovi barbari"),
+        DylanDogNumero(288, "Lavori forzati"),
+        DylanDogNumero(289, "La via degli enigmi"),
+        DylanDogNumero(290, "L'erede oscuro"),
+        DylanDogNumero(291, "Senza trucco né inganno"),
+        DylanDogNumero(292, "Anime prigioniere"),
+        DylanDogNumero(293, "Gli ultimi immortali"),
+        DylanDogNumero(294, "Piovono rane"),
+        DylanDogNumero(295, "Tra moglie e marito..."),
+        DylanDogNumero(296, "La seconda occasione"),
+        DylanDogNumero(297, "Il sortilegio"),
+        DylanDogNumero(298, "Nella testa del killer"),
+        DylanDogNumero(299, "Un'affezionata clientela"),
+        DylanDogNumero(300, "Ritratto di famiglia"),
+        DylanDogNumero(301, "L'imbalsamatore"),
+        DylanDogNumero(302, "Il delitto perfetto"),
+        DylanDogNumero(303, "Il divoratore di ossa"),
+        DylanDogNumero(304, "Terrore ad alta quota"),
+        DylanDogNumero(305, "Il museo del crimine"),
+        DylanDogNumero(306, "Il baule delle meraviglie"),
+        DylanDogNumero(307, "L'assassino della porta accanto"),
+        DylanDogNumero(308, "La Dea Madre"),
+        DylanDogNumero(309, "L'autopsia"),
+        DylanDogNumero(310, "Io, il mostro"),
+        DylanDogNumero(311, "Il giudizio del corvo"),
+        DylanDogNumero(312, "Epidemia aliena"),
+        DylanDogNumero(313, "Il crollo"),
+        DylanDogNumero(314, "I segni della fine"),
+        DylanDogNumero(315, "La legione degli scheletri"),
+        DylanDogNumero(316, "Blacky"),
+        DylanDogNumero(317, "L'impostore"),
+        DylanDogNumero(318, "Leggende urbane"),
+        DylanDogNumero(319, "I ritornanti"),
+        DylanDogNumero(320, "La fuggitiva"),
+        DylanDogNumero(321, "Giovani vampiri"),
+        DylanDogNumero(322, "Il pianto della Banshee"),
+        DylanDogNumero(323, "L'occhio di Balor"),
+        DylanDogNumero(324, "L'odio non muore mai"),
+        DylanDogNumero(325, "Una nuova vita"),
+        DylanDogNumero(326, "Sulla pelle"),
+        DylanDogNumero(327, "I sonnambuli"),
+        DylanDogNumero(328, "Trash Island"),
+        DylanDogNumero(329, "...e lascia un bel cadavere"),
+        DylanDogNumero(330, "La magnifica creatura"),
+        DylanDogNumero(331, "La morte non basta"),
+        DylanDogNumero(332, "Destinato alla terra"),
+        DylanDogNumero(333, "I raminghi dell'autunno"),
+        DylanDogNumero(334, "La paga dell'inferno"),
+        DylanDogNumero(335, "Il calvario"),
+        DylanDogNumero(336, "Brucia, strega... Brucia!"),
+        DylanDogNumero(337, "Spazio profondo"),
+        DylanDogNumero(338, "Mai più, ispettore Bloch"),
+        DylanDogNumero(339, "Anarchia nel Regno Unito"),
+        DylanDogNumero(340, "Benvenuti a Wickedford"),
+        DylanDogNumero(341, "Al servizio del caos"),
+        DylanDogNumero(342, "Il cuore degli uomini"),
+        DylanDogNumero(343, "Nel fumo della battaglia"),
+        DylanDogNumero(344, "Il sapore dell'acqua"),
+        DylanDogNumero(345, "Gli spiriti custodi"),
+        DylanDogNumero(346, "...e cenere tornerai"),
+        DylanDogNumero(347, "Gli abbandonati"),
+        DylanDogNumero(348, "La mano sbagliata"),
+        DylanDogNumero(349, "La morta non dimentica"),
+        DylanDogNumero(350, "Lacrime di pietra"),
+        DylanDogNumero(351, "In fondo al male"),
+        DylanDogNumero(352, "La calligrafia del dolore"),
+        DylanDogNumero(353, "Il generale inquisitore"),
+        DylanDogNumero(354, "Miseria e crudeltà"),
+        DylanDogNumero(355, "L'uomo dei tuoi sogni"),
+        DylanDogNumero(356, "La macchina umana"),
+        DylanDogNumero(357, "Vietato ai minori"),
+        DylanDogNumero(358, "Il prezzo della carne"),
+        DylanDogNumero(359, "Sul fondo"),
+        DylanDogNumero(360, "Remington House"),
+        DylanDogNumero(361, "Mater dolorosa"),
+        DylanDogNumero(362, "Dopo un lungo silenzio"),
+        DylanDogNumero(363, "Cose perdute"),
+        DylanDogNumero(364, "Gli anni selvaggi"),
+        DylanDogNumero(365, "Cronodramma"),
+        DylanDogNumero(366, "Il giorno della famiglia"),
+        DylanDogNumero(367, "La ninna nanna dell'ultima notte"),
+        DylanDogNumero(368, "Il passo dell'angelo"),
+        DylanDogNumero(369, "Graphic Horror Novel"),
+        DylanDogNumero(370, "Il terrore"),
+        DylanDogNumero(371, "Arriva il Dampyr"),
+        DylanDogNumero(372, "Il bianco e il nero"),
+        DylanDogNumero(373, "La fiamma"),
+        DylanDogNumero(374, "La fine dell'oscurità"),
+        DylanDogNumero(375, "Nel mistero"),
+        DylanDogNumero(376, "Graphic Horror Novel: il sequel!"),
+        DylanDogNumero(377, "Non umano"),
+        DylanDogNumero(378, "Dormire, forse sognare"),
+        DylanDogNumero(379, "Il tango delle anime perse"),
+        DylanDogNumero(380, "Nessuno è innocente"),
+        DylanDogNumero(381, "Tripofobia"),
+        DylanDogNumero(382, "Il macellaio e la rosa"),
+        DylanDogNumero(383, "Profondo nero"),
+        DylanDogNumero(384, "La macchina che non voleva morire"),
+        DylanDogNumero(385, "Perderai la testa"),
+        DylanDogNumero(386, "Hyppolita"),
+        DylanDogNumero(387, "Che regni il Caos!"),
+        DylanDogNumero(388, "Esercizio numero 6"),
+        DylanDogNumero(389, "La sopravvissuta"),
+        DylanDogNumero(390, "La caduta degli dei"),
+        DylanDogNumero(391, "Il sangue della terra"),
+        DylanDogNumero(392, "Il primordio"),
+        DylanDogNumero(393, "Casca il mondo"),
+        DylanDogNumero(394, "Eterne Stagioni"),
+        DylanDogNumero(395, "Del tempo e di altre illusioni"),
+        DylanDogNumero(396, "Il suo nome era guerra"),
+        DylanDogNumero(397, "Morbo M"),
+        DylanDogNumero(398, "Chi muore si rivede"),
+        DylanDogNumero(399, "Oggi sposi"),
+        DylanDogNumero(400, "E ora, l'Apocalisse!"),
+        DylanDogNumero(401, "L'alba Nera"),
+        DylanDogNumero(402, "Il Tramonto Rosso"),
+        DylanDogNumero(403, "La lama, la Luna e l'orco"),
+        DylanDogNumero(404, "Anna per sempre"),
+        DylanDogNumero(405, "L'uccisore"),
+        DylanDogNumero(406, "L'ultima risata"),
+        DylanDogNumero(407, "L'entità"),
+        DylanDogNumero(408, "Scrutando nell'abisso"),
+        DylanDogNumero(409, "Ritorno al buio"),
+        DylanDogNumero(410, "La notte eterna"),
+        DylanDogNumero(411, "Il terzo giorno"),
+        DylanDogNumero(412, "Una pessima annata"),
+        DylanDogNumero(413, "I padroni del nulla"),
+        DylanDogNumero(414, "Giochi innocenti"),
+        DylanDogNumero(415, "Vendetta in maschera"),
+        DylanDogNumero(416, "Il detenuto"),
+        DylanDogNumero(417, "L'ora del giudizio"),
+        DylanDogNumero(418, "Sally"),
+        DylanDogNumero(419, "Albachiara"),
+        DylanDogNumero(420, "Jenny"),
+        DylanDogNumero(421, "La variabile"),
+        DylanDogNumero(422, "Il momento blu"),
+        DylanDogNumero(423, "Nella stanza del guerriero"),
+        DylanDogNumero(424, "Candiweb"),
+        DylanDogNumero(425, "I predatori"),
+        DylanDogNumero(426, "La morte in palio"),
+        DylanDogNumero(427, "La vita e il suo contrario"),
+        DylanDogNumero(428, "Dove i sogni vanno a morire"),
+        DylanDogNumero(429, "La bestia della brughiera"),
+        DylanDogNumero(430, "Abissi boreali"),
+        DylanDogNumero(431, "Nulla è per sempre"),
+        DylanDogNumero(432, "Io ti proteggerò"),
+        DylanDogNumero(433, "Cavalcando il fulmine"),
+        DylanDogNumero(434, "Gli Infernauti"),
+        DylanDogNumero(435, "Due minuti a mezzanotte"),
+        DylanDogNumero(436, "Non con fragore..."),
+        DylanDogNumero(437, "...Ma con un lamento"),
+        DylanDogNumero(438, "La città senza nome"),
+        DylanDogNumero(439, "L'invasione silenziosa"),
+        DylanDogNumero(440, "E poi non rimase nessuno"),
+        DylanDogNumero(441, "La congiura dei colpevoli"),
+        DylanDogNumero(442, "Frammenti"),
+        DylanDogNumero(443, "Gli Indifferenti"),
+        DylanDogNumero(444, "Morte in sedici noni"),
+        DylanDogNumero(445, "Xenon!"),
+        DylanDogNumero(446, "L'altro lato dello specchio"),
+        DylanDogNumero(447, "Hazel la morta"),
+        DylanDogNumero(448, "Anatomia dell'anima"),
+        DylanDogNumero(449, "La misura del mondo"),
+        DylanDogNumero(450, "Shock"),
+        DylanDogNumero(451, "Terra funesta"),
+        DylanDogNumero(452, "Un tranquillo venerdì di paura"),
+        DylanDogNumero(453, "Pioggia di sangue"),
+        DylanDogNumero(454, "Stangata agli inferni"),
+        DylanDogNumero(455, "Fuga da Golconda"),
+        DylanDogNumero(456, "Colui che divora le ombre"),
+        DylanDogNumero(457, "La Sottile linea Nera"),
+        DylanDogNumero(458, "Sette Vite"),
+        DylanDogNumero(459, "Hikikomori"),
+        DylanDogNumero(460, "32 Dicembre"),
+        DylanDogNumero(460, "Il Grande Freddo"),
+        DylanDogNumero(460, "Opera al nero"),
+        DylanDogNumero(460, "Non Dovresti essere qui"),
+        DylanDogNumero(460, "La Dama Bianca")
     )
 }
 
@@ -260,8 +539,10 @@ fun getListaDylanDog(): List<DylanDogNumero> {
 fun AppDylanDog() {
     val context = LocalContext.current
 
+    // Carica i dati salvati all'avvio
     val numeriPosseduti = remember { SalvataggioFumetti.caricaNumeriPosseduti(context) }
 
+    // Crea la lista di Dylan Dog con i dati salvati
     var listaDylanDog by remember {
         mutableStateOf(
             getListaDylanDog().map { dylanDog ->
@@ -270,9 +551,11 @@ fun AppDylanDog() {
         )
     }
 
+    // Stato per la ricerca
     var testoRicerca by remember { mutableStateOf("") }
     var mostraRicerca by remember { mutableStateOf(false) }
 
+    // Filtro per la ricerca (numero O titolo)
     val numeroFiltrati = remember(listaDylanDog, testoRicerca) {
         if (testoRicerca.isBlank()) {
             listaDylanDog
@@ -287,6 +570,7 @@ fun AppDylanDog() {
     val listState = rememberLazyListState()
     val numeroTotale = listaDylanDog.size
 
+
     LaunchedEffect(listaDylanDog) {
         val posseduti = listaDylanDog.filter { it.posseduto }.map { it.numero }.toSet()
         SalvataggioFumetti.salvaNumeriPosseduti(context, posseduti)
@@ -297,6 +581,7 @@ fun AppDylanDog() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -304,12 +589,12 @@ fun AppDylanDog() {
         ) {
             Column {
                 Text(
-                    text = "🕵️ Dylan Dog Collection",
+                    text = "🕵️ Dylan Dog",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "L'Indagatore dell'Incubo • 1986-2025",
+                    text = "L'Indagatore dell'Incubo 💾",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -319,6 +604,7 @@ fun AppDylanDog() {
                 Icon(Icons.Default.Search, contentDescription = "Cerca")
             }
         }
+
 
         if (mostraRicerca) {
             OutlinedTextField(
@@ -332,6 +618,7 @@ fun AppDylanDog() {
             )
         }
 
+
         val numeriPosseduti = listaDylanDog.count { it.posseduto }
         val percentualeCompleta = (numeriPosseduti * 100) / numeroTotale
 
@@ -344,11 +631,12 @@ fun AppDylanDog() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "📊 Progresso Collezione",
+                    text = "🔍 Progresso Collezione",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+
 
                 LinearProgressIndicator(
                     progress = numeriPosseduti.toFloat() / numeroTotale,
@@ -361,12 +649,13 @@ fun AppDylanDog() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("✅ Posseduti: $numeriPosseduti/$numeroTotale")
-                    Text("📈 $percentualeCompleta%")
+                    Text("Posseduti: $numeriPosseduti/$numeroTotale")
+                    Text("$percentualeCompleta%")
                 }
-                Text("❌ Mancanti: ${numeroTotale - numeriPosseduti}")
+                Text("Mancanti: ${numeroTotale - numeriPosseduti}")
             }
         }
+
 
         Row(
             modifier = Modifier
@@ -380,7 +669,7 @@ fun AppDylanDog() {
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("✅ Tutti", fontSize = 12.sp)
+                Text("Segna Tutti", fontSize = 12.sp)
             }
 
             OutlinedButton(
@@ -389,13 +678,14 @@ fun AppDylanDog() {
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("❌ Reset", fontSize = 12.sp)
+                Text("Deseleziona Tutti", fontSize = 12.sp)
             }
         }
 
+
         LazyColumn(
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(numeroFiltrati) { dylanDog ->
                 DylanDogItem(
@@ -435,56 +725,35 @@ fun DylanDogItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Copertina con miglioramenti
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(dylanDog.coverUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "Copertina Dylan Dog ${dylanDog.numero}",
-                modifier = Modifier
-                    .size(70.dp, 90.dp)
-                    .clip(RoundedCornerShape(6.dp)),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(android.R.drawable.ic_menu_gallery),
-                error = painterResource(android.R.drawable.ic_menu_gallery)
+            Checkbox(
+                checked = dylanDog.posseduto,
+                onCheckedChange = onCheckedChange
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "#${dylanDog.numero}",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    text = "Dylan Dog #${dylanDog.numero}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = dylanDog.titolo,
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Text(
-                    text = if (dylanDog.posseduto) "✅" else "⭕",
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Checkbox(
-                    checked = dylanDog.posseduto,
-                    onCheckedChange = onCheckedChange
-                )
-            }
+            Text(
+                text = if (dylanDog.posseduto) "✅" else "❌",
+                fontSize = 18.sp,
+                textAlign = TextAlign.End
+            )
         }
     }
 }

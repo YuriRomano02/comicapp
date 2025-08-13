@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // Coil per le immagini
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation(libs.junit)
