@@ -23,7 +23,7 @@ Un'app semplice per tenere traccia dei numeri di Dylan Dog che possiedi. Lista c
 
 ## 📥 Download
 
-**[Vai alle Release e scarica l'APK](https://github.com/tuonome/dylan-dog-tracker/releases)**
+**[Vai alle Release e scarica l'APK](https://github.com/YuriRomano02/comicapp/releases/tag/TAG1)**
 
 Scarica l'ultima versione dalla sezione **Releases** di questo repository.
 
