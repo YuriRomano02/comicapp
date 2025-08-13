@@ -1,7 +1,7 @@
 # 🕵️ Dylan Dog Comic Tracker
 
 <div align="center">
-  <img src="dylan-dog-logo.png" alt="Dylan Dog" width="150"/>
+  <img src="dylan-dog-logo.jpg" alt="Dylan Dog" width="150"/>
   
   ### Tracker per la tua collezione di Dylan Dog
   
